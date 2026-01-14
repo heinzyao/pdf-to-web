@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ data.title }}</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Source+Sans+Pro:wght@300;400;600&family=Source+Serif+Pro:ital,wght@0,400;0,600;1,400&family=Noto+Sans+TC:wght@300;400;500;600;700&family=Noto+Serif+TC:wght@400;500;600;700&display=swap');
+
+        :root {
+            --primary-navy: #0a1628;
+            --primary-burgundy: #722f37;
+            --accent-gold: #c4a962;
+            --text-dark: #1a1a1a;
+            --text-medium: #333;
+            --text-light: #666;
+            --border-thin: #ddd;
+            --bg-paper: #fefefe;
+
+            --font-display: "Playfair Display", "Noto Serif TC", Georgia, serif;
+            --font-sans: "Source Sans Pro", "Noto Sans TC", Helvetica, Arial, sans-serif;
+            --font-serif: "Source Serif Pro", "Noto Serif TC", Georgia, serif;
+            --font-cjk: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-cjk);
+            font-size: 15px;
+            line-height: 1.85;
+            color: var(--text-dark);
+            background: #e8e8e8;
+        }
+
+        /* Dynamic font sizing classes */
+        .content-compact {
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        .content-compact .section-title {
+            font-size: 1.1rem;
+        }
+
+        .content-compact .lead-section .section-title {
+            font-size: 1.35rem;
+        }
+
+        .content-normal {
+            font-size: 15px;
+            line-height: 1.85;
+        }
+
+        .content-spacious {
+            font-size: 17px;
+            line-height: 2;
+        }
+
+        .content-spacious .section-title {
+            font-size: 1.4rem;
+        }
+
+        .content-spacious .lead-section .section-title {
+            font-size: 1.8rem;
+        }
+
+        /* Magazine Page Container */
+        .magazine-page {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--bg-paper);
+            box-shadow: 0 0 60px rgba(0, 0, 0, 0.15);
+            min-height: 100vh;
+        }
+
+        /* Masthead */
+        .masthead {
+            padding: 1.5rem 3rem;
+            border-bottom: 1px solid var(--border-thin);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .masthead-title {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-navy);
+            letter-spacing: 0.05em;
+        }
+
+        .masthead-meta {
+            font-family: var(--font-sans);
+            font-size: 0.75rem;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        /* Cover Story Hero - Full Page */
+        .cover-hero {
+            position: relative;
+            min-height: calc(100vh - 80px);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .cover-hero-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, var(--primary-navy) 0%, #1a3a5c 50%, var(--primary-burgundy) 100%);
+            background-size: cover;
+            background-position: center;
+        }
+
+        .cover-hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to bottom,
+                    rgba(0, 0, 0, 0.3) 0%,
+                    rgba(0, 0, 0, 0.5) 100%);
+        }
+
+        .cover-hero-content {
+            position: relative;
+            z-index: 10;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 3rem;
+            color: white;
+        }
+
+        .cover-header {
+            margin-bottom: 2rem;
+        }
+
+        .cover-body {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .cover-excerpt {
+            font-family: var(--font-serif);
+            font-size: 1.05rem;
+            line-height: 1.8;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .cover-excerpt p {
+            margin-bottom: 1rem;
+        }
+
+        .cover-sidebar {
+            font-family: var(--font-sans);
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.7;
+        }
+
+        .cover-sidebar-title {
+            font-family: var(--font-display);
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: white;
+        }
+
+        .cover-sidebar ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .cover-sidebar li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .cover-sidebar li:last-child {
+            border-bottom: none;
+        }
+
+        .cover-label {
+            display: inline-block;
+            background: var(--primary-burgundy);
+            color: white;
+            padding: 0.35rem 1rem;
+            font-family: var(--font-sans);
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .cover-title {
+            font-family: var(--font-cjk);
+            font-size: 2.75rem;
+            font-weight: 700;
+            line-height: 1.25;
+            margin-bottom: 0.75rem;
+            max-width: 700px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .cover-subtitle {
+            font-family: var(--font-serif);
+            font-size: 1.1rem;
+            font-style: italic;
+            opacity: 0.9;
+            max-width: 500px;
+        }
+
+        /* Main Content Area */
+        .content-area {
+            padding: 2.5rem 3rem;
+        }
+
+        /* Two Column Flow */
+        .two-column-flow {
+            columns: 2;
+            column-gap: 2.5rem;
+            column-rule: 1px solid var(--border-thin);
+        }
+
+        /* Lead Paragraph - First section styled differently */
+        .lead-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .lead-section .section-title {
+            font-family: var(--font-cjk);
+            font-size: 1.6rem;
+            font-weight: 600;
+            color: var(--primary-navy);
+            margin-bottom: 1rem;
+            line-height: 1.35;
+            border-bottom: 3px solid var(--primary-burgundy);
+            padding-bottom: 0.75rem;
+        }
+
+        .lead-section p:first-of-type {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: var(--text-medium);
+        }
+
+        .lead-section p:first-of-type::first-letter {
+            font-family: var(--font-display);
+            font-size: 4rem;
+            float: left;
+            line-height: 0.8;
+            padding-right: 0.5rem;
+            padding-top: 0.25rem;
+            color: var(--primary-burgundy);
+            font-weight: 700;
+        }
+
+        /* Regular Sections */
+        .section {
+            margin-bottom: 1.25rem;
+            break-inside: avoid-column;
+        }
+
+        .section-title {
+            font-family: var(--font-cjk);
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--primary-navy);
+            margin-bottom: 0.75rem;
+            line-height: 1.4;
+            border-bottom: 2px solid var(--accent-gold);
+            padding-bottom: 0.5rem;
+        }
+
+        .section p {
+            margin-bottom: 0.6rem;
+            text-align: justify;
+            hyphens: auto;
+        }
+
+        .section.highlighted .section-title {
+            color: var(--primary-burgundy);
+        }
+
+        /* Images in flow */
+        .media-item {
+            margin: 1.25rem 0;
+            break-inside: avoid;
+            background: #f8f8f8;
+            border-radius: 4px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            text-align: center;
+            clear: both;
+        }
+
+        .media-item img {
+            max-width: 100%;
+            width: auto;
+            height: auto;
+            display: inline-block;
+            object-fit: contain;
+            transition: transform 0.3s ease;
+        }
+
+        /* Smart Layouts */
+        .media-item.media-landscape {
+            width: 100%;
+        }
+
+        .media-item.media-landscape img {
+            width: 100%;
+            max-height: 600px;
+        }
+
+        .media-item.media-portrait {
+            width: 100%;
+            margin: 1.25rem auto;
+        }
+
+        .media-item.media-portrait img {
+            max-width: 100%;
+            max-height: 500px;
+        }
+
+        @media (min-width: 600px) {
+            .media-item.media-portrait {
+                float: right;
+                width: 45%;
+                margin: 0.5rem 0 1rem 1.5rem;
+            }
+        }
+
+        .media-item.media-square {
+            width: 80%;
+            margin: 1.25rem auto;
+        }
+
+        .media-item:hover img {
+            transform: scale(1.02);
+        }
+
+        .media-caption {
+            font-family: var(--font-cjk);
+            font-size: 0.75rem;
+            color: var(--text-light);
+            padding: 0.75rem 1rem;
+            line-height: 1.4;
+            background: #fff;
+            border-left: 3px solid var(--accent-gold);
+            text-align: left;
+        }
+
+        /* Table styling */
+        .table-container {
+            margin: 1.25rem 0;
+            overflow-x: auto;
+            break-inside: avoid;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+            background: white;
+            font-family: var(--font-cjk);
+        }
+
+        .data-table th {
+            background: var(--primary-navy);
+            color: white;
+            padding: 0.75rem 1rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.8rem;
+            letter-spacing: 0.02em;
+        }
+
+        .data-table td {
+            padding: 0.6rem 1rem;
+            border-bottom: 1px solid var(--border-thin);
+            vertical-align: top;
+            color: var(--text-medium);
+        }
+
+        .data-table tr:nth-child(even) {
+            background: #fafafa;
+        }
+
+        .data-table tr:hover {
+            background: rgba(196, 169, 98, 0.1);
+        }
+
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Chart image styling */
+        .chart-image-container {
+            margin: 1.5rem 0;
+            break-inside: avoid;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border-thin);
+        }
+
+        .chart-image-header {
+            background: linear-gradient(135deg, var(--primary-navy) 0%, #1a3a5c 100%);
+            color: white;
+            padding: 0.75rem 1rem;
+            font-family: var(--font-cjk);
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .chart-image-header::before {
+            content: "";
+            display: inline-block;
+            width: 4px;
+            height: 16px;
+            background: var(--accent-gold);
+            border-radius: 2px;
+        }
+
+        .chart-image-content {
+            padding: 1rem;
+            background: #fafafa;
+        }
+
+        .chart-image-content img {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 4px;
+        }
+
+        /* Colophon / Footer integrated */
+        .colophon {
+            padding: 1.5rem 3rem;
+            border-top: 1px solid var(--border-thin);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: var(--font-sans);
+            font-size: 0.7rem;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .magazine-page {
+                margin: 0;
+                box-shadow: none;
+            }
+
+            .masthead,
+            .content-area,
+            .colophon {
+                padding-left: 2rem;
+                padding-right: 2rem;
+            }
+
+            .cover-hero {
+                min-height: 100vh;
+            }
+
+            .cover-hero-content {
+                padding: 2rem;
+            }
+
+            .cover-title {
+                font-size: 2.25rem;
+            }
+
+            .cover-body {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .two-column-flow {
+                columns: 1;
+            }
+
+            .lead-section p:first-of-type::first-letter {
+                font-size: 3rem;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .masthead {
+                flex-direction: column;
+                gap: 0.5rem;
+                text-align: center;
+            }
+
+            .cover-hero {
+                min-height: auto;
+                padding-bottom: 2rem;
+            }
+
+            .cover-title {
+                font-size: 1.75rem;
+            }
+
+            .cover-subtitle {
+                font-size: 0.95rem;
+            }
+
+            .cover-excerpt {
+                font-size: 0.95rem;
+            }
+
+            .masthead,
+            .content-area,
+            .colophon {
+                padding-left: 1.5rem;
+                padding-right: 1.5rem;
+            }
+
+            .data-table {
+                font-size: 0.75rem;
+            }
+
+            .data-table th,
+            .data-table td {
+                padding: 0.5rem;
+            }
+        }
+
+        /* Print styles for actual magazine feel */
+        @media print {
+            body {
+                background: white;
+            }
+
+            .magazine-page {
+                box-shadow: none;
+                max-width: none;
+            }
+        }
+
+        /* ECharts container styling */
+        .echarts-container {
+            margin: 1.5rem 0;
+            break-inside: avoid;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border-thin);
+        }
+
+        .echarts-header {
+            background: linear-gradient(135deg, var(--primary-navy) 0%, #1a3a5c 100%);
+            color: white;
+            padding: 0.75rem 1rem;
+            font-family: var(--font-cjk);
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .echarts-header::before {
+            content: "";
+            display: inline-block;
+            width: 4px;
+            height: 16px;
+            background: var(--accent-gold);
+            border-radius: 2px;
+        }
+
+        .echarts-wrapper {
+            width: 100%;
+            height: 350px;
+            padding: 1rem;
+        }
+
+        @media (max-width: 600px) {
+            .echarts-wrapper {
+                height: 280px;
+            }
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+</head>
+
+<body>
+    <article class="magazine-page">
+        <!-- Masthead -->
+        <header class="masthead">
+            <div class="masthead-title">{{ data.cover_title if data.cover_title else data.title }}</div>
+            <div class="masthead-meta">{{ data.total_slides }} Sections</div>
+        </header>
+
+        <!-- Cover Hero - Full Page -->
+        <div class="cover-hero">
+            <div class="cover-hero-bg"></div>
+            <div class="cover-hero-overlay"></div>
+            <div class="cover-hero-content">
+                <div class="cover-header">
+                    <span class="cover-label">PDF Document</span>
+                    <h1 class="cover-title">{{ data.cover_title if data.cover_title else data.title }}</h1>
+                    {% if data.slides and data.slides|length > 0 and data.slides[0].content %}
+                    <p class="cover-subtitle">{{ data.slides[0].content[0].value[:80] if data.slides[0].content[0].value else '' }}...</p>
+                    {% else %}
+                    <p class="cover-subtitle">Strategic Analysis & Executive Insights</p>
+                    {% endif %}
+                </div>
+
+                {% if data.slides and data.slides|length > 0 %}
+                <div class="cover-body">
+                    <div class="cover-excerpt">
+                        {% for item in data.slides[0].content[:3] %}
+                        {% if item.value %}
+                        <p>{{ item.value[:200] }}{% if item.value|length > 200 %}...{% endif %}</p>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                    <div class="cover-sidebar">
+                        <h3 class="cover-sidebar-title">In This Report</h3>
+                        <ul>
+                            {% for slide in data.slides[:5] %}
+                            {% if slide.title %}
+                            <li>{{ slide.title[:50] }}{% if slide.title|length > 50 %}...{% endif %}</li>
+                            {% endif %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="content-area">
+            <div class="two-column-flow">
+                {% for slide in data.slides %}
+                {% if loop.first %}
+                <!-- Lead Section with Drop Cap -->
+                <div class="lead-section section{% if slide.is_highlighted %} highlighted{% endif %}">
+                    {% if slide.title %}
+                    <h2 class="section-title">{{ slide.title }}</h2>
+                    {% endif %}
+                    {% for item in slide.content %}
+                    {% if item.value %}
+                    <p>{{ item.value }}</p>
+                    {% endif %}
+                    {% endfor %}
+
+                    {% if slide.media %}
+                    {% for media in slide.media %}
+                    {% if media.type == 'image' %}
+                    {% set ar = media.aspect_ratio | default(1.0) %}
+                    {% set layout_class = 'media-square' %}
+                    {% if ar > 1.2 %}
+                    {% set layout_class = 'media-landscape' %}
+                    {% elif ar < 0.8 %}
+                    {% set layout_class = 'media-portrait' %}
+                    {% endif %}
+                    <div class="media-item {{ layout_class }}">
+                        <img src="{{ media.path }}" alt="{{ slide.title }}">
+                        {% if slide.title %}
+                        <p class="media-caption">{{ slide.title }}</p>
+                        {% endif %}
+                    </div>
+                    {% elif media.type == 'chart' %}
+                    <div class="echarts-container">
+                        <div class="echarts-header">{{ media.title if media.title else slide.title if slide.title else 'Chart' }}</div>
+                        <div id="{{ media.chart_id }}" class="echarts-wrapper"></div>
+                    </div>
+                    <script>
+                    (function() {
+                        var chartDom = document.getElementById('{{ media.chart_id }}');
+                        var myChart = echarts.init(chartDom);
+                        var option = {
+                            tooltip: { trigger: 'axis' },
+                            legend: {
+                                data: {{ media.series | map(attribute='name') | list | tojson }},
+                                bottom: 0,
+                                textStyle: { fontFamily: 'Noto Sans TC, sans-serif' }
+                            },
+                            grid: { left: '3%', right: '4%', bottom: '15%', containLabel: true },
+                            xAxis: {
+                                type: 'category',
+                                data: {{ media.categories | tojson }},
+                                axisLabel: { fontFamily: 'Noto Sans TC, sans-serif' }
+                            },
+                            yAxis: {
+                                type: 'value',
+                                min: {{ media.y_min | default(0) }},
+                                max: {{ media.y_max | default('auto') }}
+                            },
+                            series: [
+                                {% for series in media.series %}
+                                {
+                                    name: {{ series.name | tojson }},
+                                    type: '{{ series.type | default("line") }}',
+                                    data: {{ series.data | tojson }},
+                                    smooth: {{ series.smooth | default(true) | tojson }}
+                                }{% if not loop.last %},{% endif %}
+                                {% endfor %}
+                            ]
+                        };
+                        myChart.setOption(option);
+                        window.addEventListener('resize', function() { myChart.resize(); });
+                    })();
+                    </script>
+                    {% elif media.type == 'chart_image' %}
+                    <div class="chart-image-container">
+                        <div class="chart-image-header">{{ slide.title if slide.title else 'Chart' }}</div>
+                        <div class="chart-image-content">
+                            <img src="{{ media.path }}" alt="{{ slide.title }}">
+                        </div>
+                    </div>
+                    {% elif media.type == 'table' %}
+                    <div class="table-container">
+                        <table class="data-table">
+                            {% if media.headers and media.headers | select | list %}
+                            <thead>
+                                <tr>
+                                    {% for header in media.headers %}
+                                    <th>{{ header }}</th>
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            {% endif %}
+                            <tbody>
+                                {% for row in media.rows %}
+                                <tr>
+                                    {% for cell in row %}
+                                    <td>{{ cell }}</td>
+                                    {% endfor %}
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                    {% endif %}
+                </div>
+                {% else %}
+                <!-- Regular Sections -->
+                <div class="section{% if slide.is_highlighted %} highlighted{% endif %}">
+                    {% if slide.title %}
+                    <h2 class="section-title">{{ slide.title }}</h2>
+                    {% endif %}
+
+                    {% for item in slide.content %}
+                    {% if item.value %}
+                    <p>{{ item.value }}</p>
+                    {% endif %}
+                    {% endfor %}
+
+                    {% if slide.media %}
+                    {% for media in slide.media %}
+                    {% if media.type == 'image' %}
+                    {% set ar = media.aspect_ratio | default(1.0) %}
+                    {% set layout_class = 'media-square' %}
+                    {% if ar > 1.2 %}
+                    {% set layout_class = 'media-landscape' %}
+                    {% elif ar < 0.8 %}
+                    {% set layout_class = 'media-portrait' %}
+                    {% endif %}
+                    <div class="media-item {{ layout_class }}">
+                        <img src="{{ media.path }}" alt="{{ slide.title }}">
+                        {% if slide.title %}
+                        <p class="media-caption">{{ slide.title }}</p>
+                        {% endif %}
+                    </div>
+                    {% elif media.type == 'chart' %}
+                    <div class="echarts-container">
+                        <div class="echarts-header">{{ media.title if media.title else slide.title if slide.title else 'Chart' }}</div>
+                        <div id="{{ media.chart_id }}" class="echarts-wrapper"></div>
+                    </div>
+                    <script>
+                    (function() {
+                        var chartDom = document.getElementById('{{ media.chart_id }}');
+                        var myChart = echarts.init(chartDom);
+                        var option = {
+                            tooltip: { trigger: 'axis' },
+                            legend: {
+                                data: {{ media.series | map(attribute='name') | list | tojson }},
+                                bottom: 0,
+                                textStyle: { fontFamily: 'Noto Sans TC, sans-serif' }
+                            },
+                            grid: { left: '3%', right: '4%', bottom: '15%', containLabel: true },
+                            xAxis: {
+                                type: 'category',
+                                data: {{ media.categories | tojson }},
+                                axisLabel: { fontFamily: 'Noto Sans TC, sans-serif' }
+                            },
+                            yAxis: {
+                                type: 'value',
+                                min: {{ media.y_min | default(0) }},
+                                max: {{ media.y_max | default('auto') }}
+                            },
+                            series: [
+                                {% for series in media.series %}
+                                {
+                                    name: {{ series.name | tojson }},
+                                    type: '{{ series.type | default("line") }}',
+                                    data: {{ series.data | tojson }},
+                                    smooth: {{ series.smooth | default(true) | tojson }}
+                                }{% if not loop.last %},{% endif %}
+                                {% endfor %}
+                            ]
+                        };
+                        myChart.setOption(option);
+                        window.addEventListener('resize', function() { myChart.resize(); });
+                    })();
+                    </script>
+                    {% elif media.type == 'chart_image' %}
+                    <div class="chart-image-container">
+                        <div class="chart-image-header">{{ slide.title if slide.title else 'Chart' }}</div>
+                        <div class="chart-image-content">
+                            <img src="{{ media.path }}" alt="{{ slide.title }}">
+                        </div>
+                    </div>
+                    {% elif media.type == 'table' %}
+                    <div class="table-container">
+                        <table class="data-table">
+                            {% if media.headers and media.headers | select | list %}
+                            <thead>
+                                <tr>
+                                    {% for header in media.headers %}
+                                    <th>{{ header }}</th>
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            {% endif %}
+                            <tbody>
+                                {% for row in media.rows %}
+                                <tr>
+                                    {% for cell in row %}
+                                    <td>{{ cell }}</td>
+                                    {% endfor %}
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                    {% endif %}
+                </div>
+                {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Colophon -->
+        <footer class="colophon">
+            <span>{{ data.cover_title if data.cover_title else data.title }}</span>
+            <span>Generated by PDF-to-Web</span>
+        </footer>
+    </article>
+    <script>
+        // Dynamic font sizing based on content length
+        document.addEventListener('DOMContentLoaded', function () {
+            const contentArea = document.querySelector('.two-column-flow');
+            if (contentArea) {
+                const textContent = contentArea.textContent || contentArea.innerText;
+                const charCount = textContent.length;
+
+                // Adjust font size based on total character count
+                if (charCount > 8000) {
+                    contentArea.classList.add('content-compact');
+                } else if (charCount < 2000) {
+                    contentArea.classList.add('content-spacious');
+                } else {
+                    contentArea.classList.add('content-normal');
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>
