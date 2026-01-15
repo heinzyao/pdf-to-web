@@ -43,6 +43,8 @@ htmlcov/
 
 # Output directories
 output/
+output_*/
 test_output/
+test_*/
 media/
 

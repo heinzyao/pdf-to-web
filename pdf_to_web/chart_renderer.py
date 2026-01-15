@@ -5,17 +5,14 @@ and re-renders them as clean, vector-quality charts using matplotlib.
 """
 
 import io
-from pathlib import Path
 
 import cv2
 import matplotlib
 matplotlib.use('Agg')  # Non-interactive backend
-import matplotlib.pyplot as plt
 import matplotlib.font_manager as fm
+import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image
-from scipy import ndimage
-from scipy.signal import find_peaks
 
 # Configure Chinese font support
 def _setup_chinese_font():

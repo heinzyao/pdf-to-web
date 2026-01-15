@@ -6,7 +6,6 @@ then reconstructs the chart data for ECharts rendering.
 
 import re
 from io import BytesIO
-from pathlib import Path
 
 import cv2
 import numpy as np

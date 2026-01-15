@@ -20,14 +20,16 @@ class ImageAnalyzer:
 
     def __init__(self):
         self.image_hashes = Counter()  # Track duplicate images by hash
-        self.image_sizes = Counter()   # Track image sizes
-        self.all_images = []           # Store all image info for analysis
+        self.image_sizes = Counter()  # Track image sizes
+        self.all_images = []  # Store all image info for analysis
 
     def compute_image_hash(self, image_bytes: bytes) -> str:
         """Compute a hash to identify duplicate images."""
         return hashlib.md5(image_bytes).hexdigest()
 
-    def register_image(self, image_bytes: bytes, width: int, height: int, page_idx: int) -> dict:
+    def register_image(
+        self, image_bytes: bytes, width: int, height: int, page_idx: int
+    ) -> dict:
         """Register an image for later analysis."""
         img_hash = self.compute_image_hash(image_bytes)
         size_key = f"{width}x{height}"
@@ -56,18 +58,18 @@ class ImageAnalyzer:
         threshold = max(3, total_pages * 0.4)
 
         decorative_hashes = {
-            h for h, count in self.image_hashes.items()
-            if count >= threshold
+            h for h, count in self.image_hashes.items() if count >= threshold
         }
 
         decorative_sizes = {
-            s for s, count in self.image_sizes.items()
-            if count >= threshold
+            s for s, count in self.image_sizes.items() if count >= threshold
         }
 
         return decorative_hashes, decorative_sizes
 
-    def is_decorative(self, img_info: dict, decorative_hashes: set, decorative_sizes: set) -> bool:
+    def is_decorative(
+        self, img_info: dict, decorative_hashes: set, decorative_sizes: set
+    ) -> bool:
         """Check if an image is decorative based on patterns."""
         # Check by hash (exact duplicate)
         if img_info["hash"] in decorative_hashes:
@@ -87,6 +89,7 @@ class ImageAnalyzer:
         """Heuristically determine if an image is likely a chart."""
         try:
             from io import BytesIO
+
             img = Image.open(BytesIO(image_bytes))
 
             width, height = img.size
@@ -132,17 +135,21 @@ def _extract_text_blocks(page: fitz.Page) -> list[dict]:
 
             full_text = "\n".join(lines_text)
             if full_text.strip():
-                text_blocks.append({
-                    "text": full_text.strip(),
-                    "bbox": block["bbox"],
-                    "font_size": max_font_size,
-                    "is_bold": is_bold,
-                })
+                text_blocks.append(
+                    {
+                        "text": full_text.strip(),
+                        "bbox": block["bbox"],
+                        "font_size": max_font_size,
+                        "is_bold": is_bold,
+                    }
+                )
 
     return text_blocks
 
 
-def _classify_text_blocks(text_blocks: list[dict], page_height: float) -> tuple[str, list[dict]]:
+def _classify_text_blocks(
+    text_blocks: list[dict], page_height: float
+) -> tuple[str, list[dict]]:
     """Classify text blocks into title and content based on font size and position."""
     if not text_blocks:
         return "", []
@@ -161,9 +168,9 @@ def _classify_text_blocks(text_blocks: list[dict], page_height: float) -> tuple[
 
         # Title detection
         is_title_candidate = (
-            (font_size >= max_font_size * 0.9 and font_size > 12) or
-            (is_bold and font_size > 14) or
-            (y_pos < page_height * 0.15 and font_size > 12)
+            (font_size >= max_font_size * 0.9 and font_size > 12)
+            or (is_bold and font_size > 14)
+            or (y_pos < page_height * 0.15 and font_size > 12)
         )
 
         if not title and is_title_candidate and len(text) < 200:
@@ -190,16 +197,17 @@ def _extract_tables(page_plumber) -> list[dict]:
 
             clean_headers = [str(cell).strip() if cell else "" for cell in headers]
             clean_rows = [
-                [str(cell).strip() if cell else "" for cell in row]
-                for row in rows
+                [str(cell).strip() if cell else "" for cell in row] for row in rows
             ]
 
             if any(clean_headers) or any(any(row) for row in clean_rows):
-                tables.append({
-                    "type": "table",
-                    "headers": clean_headers,
-                    "rows": clean_rows,
-                })
+                tables.append(
+                    {
+                        "type": "table",
+                        "headers": clean_headers,
+                        "rows": clean_rows,
+                    }
+                )
 
     except Exception as e:
         print(f"Warning: Failed to extract tables: {e}")
@@ -232,15 +240,20 @@ def pdf_to_yaml(pdf_path: str, yaml_output_dir: str) -> str:
     Returns:
         Path to the created YAML file.
     """
+    print("Starting pdf_to_yaml conversion...")
     pdf_file = Path(pdf_path)
     yaml_dir = Path(yaml_output_dir)
     yaml_dir.mkdir(parents=True, exist_ok=True)
+    print(f"Processing PDF: {pdf_file}, output dir: {yaml_dir}")
 
     media_dir = yaml_dir / "media"
     media_dir.mkdir(parents=True, exist_ok=True)
 
+    print("Opening PDF with fitz...")
     doc = fitz.open(str(pdf_file))
+    print(f"PDF opened, pages: {len(doc)}")
     pdf_plumber = pdfplumber.open(str(pdf_file))
+    print("PDF opened with pdfplumber")
 
     total_pages = len(doc)
     analyzer = ImageAnalyzer()
@@ -340,8 +353,9 @@ def pdf_to_yaml(pdf_path: str, yaml_output_dir: str) -> str:
                 try:
                     from pdf_to_web.ai_chart_analyzer import (
                         analyze_chart_with_ai,
-                        render_chart_from_ai_data
+                        render_chart_from_ai_data,
                     )
+
                     print(f"  Analyzing chart with AI...")
                     chart_data_ai = analyze_chart_with_ai(image_bytes)
 
@@ -362,6 +376,7 @@ def pdf_to_yaml(pdf_path: str, yaml_output_dir: str) -> str:
                         y_limits = None
                         try:
                             from pdf_to_web.chart_extractor import ChartExtractor
+
                             extractor = ChartExtractor()
                             ocr_text = extractor.extract_text(image_bytes)
                             chart_data = extractor.parse_chart_data(ocr_text)
@@ -375,7 +390,7 @@ def pdf_to_yaml(pdf_path: str, yaml_output_dir: str) -> str:
                             image_bytes,
                             title=title or f"Chart {chart_counter}",
                             x_labels=x_labels,
-                            y_limits=y_limits
+                            y_limits=y_limits,
                         )
                         if rendered_bytes:
                             print(f"  Fallback chart rendering successful.")
@@ -384,7 +399,9 @@ def pdf_to_yaml(pdf_path: str, yaml_output_dir: str) -> str:
 
                 if rendered_bytes:
                     # Save the re-rendered chart
-                    rendered_filename = f"page_{page_idx + 1}_chart_{img_idx + 1}_rendered.png"
+                    rendered_filename = (
+                        f"page_{page_idx + 1}_chart_{img_idx + 1}_rendered.png"
+                    )
                     rendered_path = media_dir / rendered_filename
                     with open(rendered_path, "wb") as f:
                         f.write(rendered_bytes)
@@ -405,12 +422,16 @@ def pdf_to_yaml(pdf_path: str, yaml_output_dir: str) -> str:
                         echarts_series = []
                         for s in series_list:
                             chart_type = chart_data_ai.get("chart_type", "line")
-                            echarts_series.append({
-                                "name": s.get("name", "Series"),
-                                "type": chart_type if chart_type in ["line", "bar"] else "line",
-                                "data": s.get("data", []),
-                                "smooth": True
-                            })
+                            echarts_series.append(
+                                {
+                                    "name": s.get("name", "Series"),
+                                    "type": chart_type
+                                    if chart_type in ["line", "bar"]
+                                    else "line",
+                                    "data": s.get("data", []),
+                                    "smooth": True,
+                                }
+                            )
 
                         media_item = {
                             "type": "chart",
@@ -439,23 +460,27 @@ def pdf_to_yaml(pdf_path: str, yaml_output_dir: str) -> str:
                     print(f"  Chart saved: {rendered_filename}")
                 else:
                     # Fallback to original image
-                    media.append({
+                    media.append(
+                        {
+                            "type": "image",
+                            "path": f"media/{filename}",
+                            "width": width,
+                            "height": height,
+                            "aspect_ratio": aspect_ratio,
+                            "is_chart": True,
+                        }
+                    )
+                    print(f"  Chart kept as original: {filename}")
+            else:
+                media.append(
+                    {
                         "type": "image",
                         "path": f"media/{filename}",
                         "width": width,
                         "height": height,
                         "aspect_ratio": aspect_ratio,
-                        "is_chart": True,
-                    })
-                    print(f"  Chart kept as original: {filename}")
-            else:
-                media.append({
-                    "type": "image",
-                    "path": f"media/{filename}",
-                    "width": width,
-                    "height": height,
-                    "aspect_ratio": aspect_ratio,
-                })
+                    }
+                )
 
         # Add tables to media
         media.extend(tables)
@@ -474,11 +499,13 @@ def pdf_to_yaml(pdf_path: str, yaml_output_dir: str) -> str:
         if title or content or media:
             pages_data.append(page_data)
             if is_highlighted:
-                highlighted_sections.append({
-                    "slide_number": page_idx + 1,
-                    "title": title,
-                    "content": content[:3],
-                })
+                highlighted_sections.append(
+                    {
+                        "slide_number": page_idx + 1,
+                        "title": title,
+                        "content": content[:3],
+                    }
+                )
 
     doc.close()
     pdf_plumber.close()
@@ -486,7 +513,8 @@ def pdf_to_yaml(pdf_path: str, yaml_output_dir: str) -> str:
     # Summary
     total_images = len(analyzer.all_images)
     filtered_images = sum(
-        1 for img in analyzer.all_images
+        1
+        for img in analyzer.all_images
         if analyzer.is_decorative(img, decorative_hashes, decorative_sizes)
     )
     print(f"\nImage filtering summary:")
